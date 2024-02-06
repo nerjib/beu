@@ -5,6 +5,7 @@ import './home.scss'
 import {useEffect, useState} from 'react'
 import { ComplexNavbar } from '../components/header/topnav';
 import ProductCard from '../components/cards/productsCard';
+import hero from '../assets/hero1.jpg'
 
 function Home() {
   
@@ -56,7 +57,7 @@ function Home() {
         // backgroundSize: "fit",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "top center",
-        backgroundImage: `url('/hero1.jpg')`,
+        backgroundImage: `url(${hero})`,
         height: '100vh'
         }}
       > 
