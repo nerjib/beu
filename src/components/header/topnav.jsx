@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment, useState } from "react";
 import logo from '../../assets/beu_logo.png'
 import FrangranceIcon from '../../assets/zimaya.jpeg'
 import MakeupIcon from '../../assets/makeup.jpg'
@@ -33,6 +33,8 @@ import {
   RocketLaunchIcon,
   Bars2Icon,
 } from "@heroicons/react/24/solid";
+import { baseUrl, httpGet } from "../../actions/https";
+import SearchDropdown from "../input/search";
  
 // profile menu component
 const profileMenuItems = [
@@ -423,7 +425,63 @@ function SkinCareMenu() {
     </React.Fragment>
   );
 }
-
+function SearchMenu() {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+ 
+  const renderItems = MakeupMenuItems.map(({ title, description }) => (
+    <a href="#" key={title}>
+      <MenuItem>
+        <Typography variant="h6" color="blue-gray" className="mb-1">
+          {title}
+        </Typography>
+        <Typography variant="small" color="gray" className="font-normal">
+          {description}
+        </Typography>
+      </MenuItem>
+    </a>
+  ));
+ 
+  return (
+    <React.Fragment>
+      <Menu allowHover open={isMenuOpen} handler={setIsMenuOpen}>
+        <MenuHandler>
+          <Typography as="a" href="#" variant="small" className="font-normal">
+            <MenuItem className="hidden items-center gap-2 font-medium text-blue-gray-900 lg:flex lg:rounded-full">
+              <PowerIcon className="h-[18px] w-[18px] text-blue-gray-500" />{" "}
+              Makeup{" "}
+              <ChevronDownIcon
+                strokeWidth={2}
+                className={`h-3 w-3 transition-transform ${
+                  isMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </MenuItem>
+          </Typography>
+        </MenuHandler>
+        <MenuList className="hidden w-[36rem] grid-cols-7 gap-3 overflow-visible lg:grid">
+          <Card
+            color="blue"
+            shadow={false}
+            variant="gradient"
+            className="col-span-3 grid h-full w-full place-items-center rounded-md"
+          >
+            <img src={MakeupIcon} strokeWidth={1} className="h-28 w-28" />
+          </Card>
+          <ul className="col-span-4 flex w-full flex-col gap-1">
+            {renderItems}
+          </ul>
+        </MenuList>
+      </Menu>
+      <MenuItem className="flex items-center gap-2 font-medium text-blue-gray-900 lg:hidden">
+        <PowerIcon className="h-[18px] w-[18px] text-blue-gray-500" />{" "}
+        MakeUp{" "}
+      </MenuItem>
+      <ul className="ml-6 flex w-full flex-col gap-1 lg:hidden">
+        {renderItems}
+      </ul>
+    </React.Fragment>
+  );
+}
 // nav list component
 const navListItems = [
   {
@@ -462,9 +520,11 @@ function NavList() {
   );
 }
  
-export function ComplexNavbar() {
+export function ComplexNavbar(props) {
   const [isNavOpen, setIsNavOpen] = React.useState(false);
- 
+  const [searchData, setSearchData] = useState([]);
+  const [isOpenSearch, setIsOpenSearch] = useState(false);
+ const {setSelectedItem} = props
   const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
  
   React.useEffect(() => {
@@ -474,6 +534,22 @@ export function ComplexNavbar() {
     );
   }, []);
  
+  const handleSearch = async (e) => {
+    const { value } = e.target;
+    if (!value) {
+      setSearchData([]);
+      return;
+    }
+    const res = await httpGet(`${baseUrl}/products/${value}`, true);
+    if (res?.status) {
+      setIsOpenSearch(true);
+      setSearchData(res?.data);
+    } else {
+      setIsOpenSearch(false);
+      setSearchData([])
+    }
+
+  }
   return (
     <Navbar className="sticky block mx-auto max-w-screen-xl p-2 lg:pl-6">
       <div className="items-center">
@@ -502,9 +578,12 @@ export function ComplexNavbar() {
       </div>
       <div className="hidden items-center gap-x-2 lg:flex">
           <div className="relative flex w-full gap-2 md:w-max">
+          <div style={{ position: 'relative' }} class="col-md-12">
+          <div className="my-2">
             <Input
               type="search"
               placeholder="Search"
+              onChange={handleSearch}
               containerProps={{
                 className: "min-w-[288px]",
               }}
@@ -513,6 +592,9 @@ export function ComplexNavbar() {
                 className: "before:content-none after:content-none",
               }}
             />
+            <SearchDropdown options={searchData} setSelectedItem={setSelectedItem} setSearchData={setSearchData}/>
+            </div>
+            </div>
             <div className="!absolute left-3 top-[13px]">
               <svg
                 width="13"
@@ -535,9 +617,6 @@ export function ComplexNavbar() {
               </svg>
             </div>
           </div>
-          <Button size="md" className="rounded-lg ">
-            Search
-          </Button>
         </div>
       <MobileNav open={isNavOpen} className="overflow-scroll">
         <NavList />
