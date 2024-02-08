@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useContext, useState } from "react";
 import logo from '../../assets/beu_logo.png'
 import FrangranceIcon from '../../assets/zimaya.jpeg'
 import MakeupIcon from '../../assets/makeup.jpg'
@@ -35,6 +35,10 @@ import {
 } from "@heroicons/react/24/solid";
 import { baseUrl, httpGet } from "../../actions/https";
 import SearchDropdown from "../input/search";
+import { Notifications, Shop, ShoppingCart } from "@mui/icons-material";
+import { Badge } from "@mui/material";
+import { NotificationContext } from "../../store/NotificationContext";
+import CartItemsModal from "../modals/cartitems";
  
 // profile menu component
 const profileMenuItems = [
@@ -524,6 +528,8 @@ export function ComplexNavbar(props) {
   const [isNavOpen, setIsNavOpen] = React.useState(false);
   const [searchData, setSearchData] = useState([]);
   const [isOpenSearch, setIsOpenSearch] = useState(false);
+  const {reload, setReload, allCart } = useContext(NotificationContext);
+  const [showCart, setShowCart] = useState(false);
  const {setSelectedItem} = props
   const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
  
@@ -551,8 +557,8 @@ export function ComplexNavbar(props) {
 
   }
   return (
-    <Navbar className="sticky block mx-auto max-w-screen-xl p-2 lg:pl-6">
-      <div className="items-center">
+    <Navbar className="sticky top-0 z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-4">
+    <div className="items-center">
                 <img src={logo} style={{ width: 200, height: 100}}  className="mx-auto my-3 img-fluid"/>
       </div>
 
@@ -574,6 +580,13 @@ export function ComplexNavbar(props) {
         <Button size="sm" variant="text">
           <span>Log In</span>
         </Button>
+        <Badge
+          badgeContent={allCart?.length ?? 0}
+          color="primary"
+          onClick={()=> setShowCart(true)}
+        >
+          <ShoppingCart />
+        </Badge>
         <ProfileMenu />
       </div>
       <div className="hidden items-center gap-x-2 lg:flex">
@@ -621,6 +634,11 @@ export function ComplexNavbar(props) {
       <MobileNav open={isNavOpen} className="overflow-scroll">
         <NavList />
       </MobileNav>
+      {showCart ? (
+        <CartItemsModal showModal={showCart} hideModal={setShowCart} />
+      ) : (
+        ''
+      )}
     </Navbar>
   );
 }

@@ -2,16 +2,18 @@
 import Fade from 'react-reveal/Fade';
 import Zoom from 'react-reveal/Zoom';
 import './home.scss'
-import {useEffect, useState} from 'react'
+import {useContext, useEffect, useState} from 'react'
 import { ComplexNavbar } from '../components/header/topnav';
 import ProductCard from '../components/cards/productsCard';
 import hero from '../assets/hero1.jpg'
 import { Button, Card, Input, Modal } from 'antd';
 import { baseUrl, httpGet } from '../actions/https';
 import SearchDropdown from '../components/input/search';
+import { NotificationContext } from '../store/NotificationContext';
 // import { Modal, ModalBody } from 'reactstrap';
 
 function Home() {
+  const {reload, setReload } = useContext(NotificationContext);
   const [previewImg, setPreviewImg] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [products, setProducts] = useState([]);
@@ -82,10 +84,17 @@ function Home() {
     setPreviewImg(true);
     setSelectedProduct(e)
   }
+  const handleAddToCart = (item) => {
+    const cartP = JSON.parse(localStorage.getItem('cart')) ?? [];
+    cartP.push(item);
+    localStorage.setItem('cart', JSON.stringify(cartP));
+    setReload(!reload);
+    console.log({cartP});
+  }
   return (
     <div className='w-100'>
       <div className='w-100' id='homesection'>
-      <div className="bg-gray-300 sticky">
+      <div className="bg-gray-300">
           <ComplexNavbar setSelectedItem={handleSelectedItem} />
       </div>
       <div className="hidden items-center gap-x-2 lg:flex">
@@ -147,7 +156,7 @@ function Home() {
         <Button key="back" onClick={() => setPreviewImg(false)}>
           Return
         </Button>,
-        <Button key="submit" >
+        <Button key="submit" onClick={()=> handleAddToCart(selectedProduct)}>
           + cart
         </Button>,
         // <Button
@@ -195,6 +204,7 @@ function Home() {
                         setSelectedProduct={setSelectedProduct}
                         setPreviewImg={setPreviewImg}
                         data={val}
+                        handleAddToCart={handleAddToCart}
                       />
                     </div>
                 </a>
@@ -221,6 +231,7 @@ function Home() {
                          setSelectedProduct={setSelectedProduct}
                          setPreviewImg={setPreviewImg}
                          data={val}
+                         handleAddToCart={handleAddToCart}
                       />
                     </div>
                 </a>

@@ -9,6 +9,7 @@ function ProductCard({
   setSelectedProduct,
   setPreviewImg,
   data,
+  handleAddToCart
 }) {
   return (
     <div className='w-100 h-100 mx-3'>
@@ -29,7 +30,7 @@ function ProductCard({
         setSelectedProduct(data);
         setPreviewImg(true);
       }}>preview</button>
-      <button>+ cart</button>
+      <button onClick={()=> handleAddToCart(data)}>+ cart</button>
       </div>
       </div>
     </div>
